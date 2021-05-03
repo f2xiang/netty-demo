@@ -17,6 +17,7 @@ import io.netty.handler.codec.LengthFieldBasedFrameDecoder;
 import io.netty.handler.logging.LogLevel;
 import io.netty.handler.logging.LoggingHandler;
 import io.netty.handler.timeout.IdleState;
+import io.netty.handler.timeout.IdleStateEvent;
 import io.netty.handler.timeout.IdleStateHandler;
 import lombok.extern.slf4j.Slf4j;
 
@@ -34,6 +35,13 @@ public class ChatServer {
             serverBootstrap.childHandler(new ChannelInitializer<SocketChannel>() {
                 @Override
                 protected void initChannel(SocketChannel ch) throws Exception {
+
+
+                    ch.pipeline().addLast(new ProcotolFrameDecoder());
+                    ch.pipeline().addLast(LOGGING_HANDLER);
+                    ch.pipeline().addLast(MESSAGE_CODEC);
+
+
                     //用来判断是不是读，写空闲时间过长，判断连接假死(单位s)
                     //5s没有收到，会触发事件
                     // IdleState :
@@ -46,13 +54,14 @@ public class ChatServer {
                         // 用来触发特殊的事件
                         @Override
                         public void userEventTriggered(ChannelHandlerContext ctx, Object evt) throws Exception {
-                            super.userEventTriggered(ctx, evt);
+                            IdleStateEvent event = (IdleStateEvent) evt;
+                            if (event.state() == IdleState.READER_IDLE) {
+                                log.info("5s没读到数据啦");
+                            }
                         }
                     });
 
-                    ch.pipeline().addLast(new ProcotolFrameDecoder());
-                    ch.pipeline().addLast(LOGGING_HANDLER);
-                    ch.pipeline().addLast(MESSAGE_CODEC);
+
                     ch.pipeline().addLast(new ServerLoginHandler());
                     ch.pipeline().addLast(new ChatReqMessageHandler());
                     ch.pipeline().addLast(new GroupCreateReqMessageHandler());
