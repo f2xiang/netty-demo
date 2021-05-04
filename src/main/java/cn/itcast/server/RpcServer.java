@@ -31,7 +31,7 @@ public class RpcServer {
         LoggingHandler LOGGING_HANDLER = new LoggingHandler(LogLevel.DEBUG);
         MessageCodecSharable MESSAGE_CODEC = new MessageCodecSharable();
         RpcRequestMessageHandler RPC_REQUEST = new RpcRequestMessageHandler();
-        RpcRequestMessageHandler RPC_RESPONSE = new RpcRequestMessageHandler();
+        RpcResponseMessageHandler RPC_RESPONSE = new RpcResponseMessageHandler();
         try {
             ServerBootstrap serverBootstrap = new ServerBootstrap();
             serverBootstrap.channel(NioServerSocketChannel.class);

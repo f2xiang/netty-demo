@@ -102,7 +102,7 @@ public class RpcClientManager {
 
         HelloService helloService = getProxyService(HelloService.class);
 
-        System.out.println(helloService.sayHello("张三"));
-        System.out.println(helloService.sayHello("王五"));
+        System.out.println("response:"+helloService.sayHello("张三"));
+        System.out.println("response:"+helloService.sayHello("王五"));
     }
 }
