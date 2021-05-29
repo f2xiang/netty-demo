@@ -1,6 +1,7 @@
 package cn.itcast.tomcat.servlet;
 
 import cn.itcast.tomcat.http.Request;
+import cn.itcast.tomcat.http.Response;
 import io.netty.handler.codec.http.HttpMethod;
 
 
@@ -12,7 +13,7 @@ import io.netty.handler.codec.http.HttpMethod;
 public abstract class BaseHttpServlet {
 
 
-    public String service(Request request) {
+    public Response service(Request request) {
         if (request.getHttpMethod() == HttpMethod.GET) {
             return doGet(request);
         }else if (request.getHttpMethod() == HttpMethod.POST) {
@@ -22,8 +23,8 @@ public abstract class BaseHttpServlet {
     }
 
 
-    public abstract String doPost(Request request);
-    public abstract String doGet(Request request);
+    public abstract Response doPost(Request request);
+    public abstract Response doGet(Request request);
 
 
 }
