@@ -1,6 +1,7 @@
 package cn.itcast.tomcat;
 
-import cn.itcast.protocol.ProcotolFrameDecoder;
+import cn.itcast.tomcat.annotation.RequestMapping;
+import cn.itcast.tomcat.controller.Controller;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelInitializer;
@@ -10,11 +11,13 @@ import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.handler.codec.http.HttpObjectAggregator;
 import io.netty.handler.codec.http.HttpRequestDecoder;
 import io.netty.handler.codec.http.HttpResponseEncoder;
-import io.netty.handler.codec.http.HttpServerCodec;
 import io.netty.handler.logging.LogLevel;
 import io.netty.handler.logging.LoggingHandler;
 import io.netty.handler.stream.ChunkedWriteHandler;
 import lombok.extern.slf4j.Slf4j;
+
+import java.lang.reflect.Method;
+import java.util.*;
 
 /**
  * @description: Tomcat启动类
@@ -24,11 +27,55 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class BootStrap {
 
+    private static Map<String, Method> methodMappingMap;
+    private static Map<String, Object> methodControllerMap;
+
+
     /**
      * 初始化
      */
     public void init() {
+        initController();
         openServer();
+    }
+
+    public static Map<String, Method> getMethodMappingMap() {
+        return methodMappingMap;
+    }
+
+    public static Map<String, Object> getMethodControllerMap() {
+        return methodControllerMap;
+    }
+
+    private void initController() {
+        methodMappingMap = new HashMap<>();
+        methodControllerMap = new HashMap<>();
+
+        // 通过SPI机制 获取所有的controller，按道理应该是@controller注解，这里简化了
+        ServiceLoader<Controller> classes = ServiceLoader.load(Controller.class);
+        for (Controller controller : classes) {
+
+            Class clazz = controller.getClass();
+
+            // 查询类上面的RequestMapping注解
+            String classMapping = "";
+            if (clazz.isAnnotationPresent(RequestMapping.class)) {
+                RequestMapping requestMapping = (RequestMapping) clazz.getAnnotation(RequestMapping.class);
+                classMapping = requestMapping.value();
+            }
+
+            // 查询方法上面的RequestMapping注解
+            Method[] methods = clazz.getDeclaredMethods();
+            for (Method method : methods) {
+                if (method.isAnnotationPresent(RequestMapping.class)) {
+                    RequestMapping requestMapping = method.getAnnotation(RequestMapping.class);
+                    String methodMapping = requestMapping.value();
+                    methodMappingMap.put(classMapping + methodMapping, method);
+                    methodControllerMap.put(method.getName(), controller);
+                }
+            }
+        }
+
     }
 
     /**
@@ -70,6 +117,7 @@ public class BootStrap {
     public static void main(String[] args) {
         BootStrap bootStrap = new BootStrap();
         bootStrap.init();
+
     }
 
 

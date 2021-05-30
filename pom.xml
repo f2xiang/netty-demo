@@ -50,4 +50,19 @@
             <version>2.4</version>
         </dependency>
     </dependencies>
+
+    <!-- 反射获取的参数都是 arg0，arg1  通过以下设置 可以获取到真实的参数名称 name等 -->
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <configuration>
+                    <source>8</source>
+                    <target>8</target>
+                    <compilerArgument>-parameters</compilerArgument>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
 </project>

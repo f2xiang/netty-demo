@@ -33,8 +33,7 @@ public class MappingServletFactory {
         try {
             return Class.forName(map.get(interfaceName)).newInstance();
         } catch (Exception e) {
-            e.printStackTrace();
+            return null;
         }
-        return null;
     }
 }
